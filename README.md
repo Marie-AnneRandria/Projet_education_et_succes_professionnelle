@@ -5,6 +5,7 @@ Diallo
 
 ## Résumé
 
+Ce projet a été effectué dans le cadre du cours "Introduction au science des données et de l'intelligence des affaires" en Automne 2025.
 L’objectif de notre projet est d’analyser un ensemble de données portant
 sur de jeunes diplômés afin de mesurer l’impact des caractéristiques
 éducatives (GPA, stages complétés, projets complétés) autant que les
@@ -47,4 +48,5 @@ récupération:15 Octobre 2025).
 Le jeu de données “Education Career Success” provient du site web Kaggle
 (<https://www.kaggle.com/datasets/adilshamim8/education-and-career-success>),
 publié par Adil Shamim.
+
 
