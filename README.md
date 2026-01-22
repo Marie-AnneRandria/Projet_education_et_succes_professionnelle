@@ -28,11 +28,7 @@ femmes sur le marché du travail (pour le cas de notre dataset), que les
 compétences relationnelles (Soft Skills) sont supposés être associer au
 salaire de départ.
 
-# Présentation
 
-Notre présentation est disponible [ici](presentation/presentation.html).
-Pour visionner la vidéo, elle se trouve dans le fichier “Vidéo” de notre
-projet.
 
 ## Données
 
@@ -51,3 +47,4 @@ récupération:15 Octobre 2025).
 Le jeu de données “Education Career Success” provient du site web Kaggle
 (<https://www.kaggle.com/datasets/adilshamim8/education-and-career-success>),
 publié par Adil Shamim.
+
