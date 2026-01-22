@@ -1,0 +1,261 @@
+---
+title: "Proposition de projet"
+author: "Marie-Anne Randrianarivony,Fatoumata Binta Diallo,salem asani, N'GUESSAN WILFRIED ARMEL"
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+```{r load-packages, message = FALSE,warning=FALSE}
+library(tidyverse)
+library(broom)
+library(dplyr)
+library(skimr)
+library(tidymodels)
+data <-read_csv("C:/Users/Wilfried/Desktop/INTRO science  des données/Projet-Groupe-4/education_career_success.csv")
+```
+
+## 1. Introduction
+
+Nous voulions choisir ce jeu de donnée étant nous même étudiant, nous voulons savoir concrètement quels facteurs dans le domaine de l'éducation  influencent la réussite d'une carrière future. Ce qui nous a permis de poser la question suivante: Dans quelle mesure les caractéristiques éducatives et personnelles influencent-elles la réussite professionnelle ?
+
+Pour y répondre, nous poserons comme objectif de :
+
+- Comprendre l'effet de l'éducation scolaire
+
+
+- Mesurer l'impact de l'expérience pratique (stages, certificats)
+
+
+- Examiner l'influence des compétences relationnelles
+
+
+- Mesurer les différences selon le genre ou le niveau de carrière
+
+***Méthode de collecte:*** 
+Le jeu de données "Education Career Success" provient du site web Kaggle (https://www.kaggle.com/datasets/adilshamim8/education-and-career-success), publié par Adil Shamim. Le jeu de donnée a été collecté à partir de plusieurs sources validées au cours d'une étude longitudinale menée auprès de jeunes diplômés universitaires (promotions 2018-2022). 
+
+***Nombre d'observations et de variables:***
+Dans ce jeu de donnée, nous avons **400** observations provenant des étudiants anonymes d'une université et **19** variables.
+
+Les 19 variables sont: 
+
+**Student_ID:** le code alphanumérique unique attribué à chaque étudiant.
+
+**Age:** l'âge de l' étudiant en années entières, au moment de l'obtention du diplôme ou de la collecte des données.
+
+**Gender:** l'identité sexuelle déclarée par l'individu peut-être: "Homme","Femme",ou "Autre".
+
+**High_School_GPA:** la moyenne cumulative des notes obtenues au lycée sur une échelle de 2.0 à 4.0.
+
+**SAT_Score:** le score total à l'examen d'entrée à l'université SAT, compris entre 900 et 1600.
+
+**University_GPA:** la moyenne cumulative des notes obtenues au premier cycle universitaire sur une échelle de 2.0 à 4.0.
+
+**Field_of_Study:** la spécialité ou la discipline universitaire (exemple: "informatique", "médecine", "commerce").
+
+**Internship_Completed:** le nombre de stages officiels effectués pendant les études universitaires (peu être une valeur de 0 à 4).
+
+**Projects_Completed:** le nombre de projets universitaires ou personnels importants (exemple: projet de fin d'études, de recherches, applications) menés à bien (0 à 9).
+
+**Certifications:** le nombre de certificats reconnus par l'industrie (exemple: AWS,PMP) obtenus en dehors des cours officiels (0 à 5).
+
+**Soft_Skills_Score:** l'évaluation par un enseignant ou un pair des compétences en communication, en travail d'équipes et en leadership, sur une échelle de 1 à 10.
+
+**Networking_Score:** l'évaluation quantitative de réseautage professionnel (exemple: connexions LinkedIn, évènements auxquels l'étudiant a participé) sur une échelle de 1 à 10.
+
+**Job_Offers:** le nombre total d'offres d'emplois à temps plein distinctes reçues dans les 6 mois suivant l'obtention du diplôme (0 à 5).
+
+**Starting_Salary:** le salaire annuel de base en dollars américains pour le premier emploi à temps plein (25 000 et 150 000 dollars).
+
+**Career_Satisfaction:** la satisfaction déclarée par les répondants à l'égard de leur premier emploi, sur une échelle de 1(très insatisfait) à 10(très satisfait).
+
+
+**Years_to_Promotion:** le nombre d'années écoulées entre la date d'embauche et la promotion au niveau professionnel supérieur (1 à 5).
+
+**Current_Job_Level:** le stade de carrière catégoriel au moment de la collecte des données: "Débutant","Senior" ou "Cadre".
+
+**Work_Life_Balance:** l'équilibre auto-évalué entre vie professionnelle et vie privée, notée de 1(mauvais) à 10(excellent).
+
+**Entrepreneurship:** indique si la personne a fondé ou cofondé une entreprise ("Oui" ou "Non").
+
+## 2. Données
+```{r apercu}
+glimpse(data)
+skim(data)
+```
+
+
+## 3. Résultats attendus
+
+Nous anticipons que :
+- la satisfaction de carrière tend à augmenter avec le nombre de stages complétés;
+- la moyenne universitaire pourrait également jouer un rôle modéré.
+-la filière choisie  aura un impact sur le salaire.
+
+## 4. Plan d'analyse de données
+
+### Variables réponse et explicatives: 
+Nous avons décidé de choisir comme variable réponse, la variable `Starting_Salary` et comme variables explicatives :`High_School_GPA`,`University_GPA`,`Internships_Completed`,`Projects_Completed`,`Certifications`,`Soft_Skills_Score`,`Networking_Score`.
+
+
+### Groupes de comparaison:
+
+-	**Satisfaction de carrière(Y) et Projects_Completed** pour savoir si le nombre de projets complétés par les étudiants aurait un impact sur leur satisfaction professionnelle.
+
+- **Years_to_Promotion et Current_Job_level** pour observer, selon le niveau de carrière, le nombre d'année qu'il faut à un étudiant pour obtenir une promotion.  
+
+### Analyse exploratoire des données:
+
+
+-**Répartition des étudiants ayant complétés leurs stages** 
+
+```{r répartition-des-stages-complétés}
+pourcentage_stage <-data %>% 
+  count(Internships_Completed) %>% 
+  mutate(pourcentage=round(100*n/sum(n),2)) %>% 
+  select(Internships_Completed,pourcentage)
+ 
+print(pourcentage_stage)
+```
+
+**Interprétations:** 34% des étudiants ont complétés  3 stages au cours de leurs études.
+
+-**Analyse de la différence salariale selon le genre**
+
+```{r stat-descriptive-salaire-per-gender}
+data %>% 
+  group_by(Gender) %>% 
+  summarise(
+    moyenne_salaire=mean(Starting_Salary,na.rm=TRUE)
+  )
+```
+
+**Interprétation:** En moyenne, on observe que les femmes gagnent plus que les hommes au début de leur carrière.
+
+- **top 5  des meilleurs salaires de départ des étudiants dans leur carrière par programme d'étude**
+```{r top-5-starting-salary}
+top_5 <- data %>%
+  group_by(Field_of_Study) %>%
+  summarise(Salaire_Moyen = mean(Starting_Salary, na.rm = TRUE)) %>%
+  arrange(desc(Salaire_Moyen)) %>%
+  slice_head(n = 5)   
+
+print(top_5)
+```
+
+
+
+### Visualisations 
+
+  - **Est-ce que le nombre de projets achevées à l'université influence la satisfaction professionnelle?**
+  
+```{r career-sastisfaction-project-completed}
+
+data%>%
+  ggplot(aes(y=Career_Satisfaction,x=Projects_Completed))+
+  geom_point()+
+  labs(x="Projets complétés",y="Satisfaction de carrière",title="Distribution de la satisfaction carrière ",subtitle="en fonction du nombres projets complétés")
+
+```
+
+
+**Interpretation:**  Selon le nombre de projets complétés par les étudiants, ces derniers seront plus en confiance dans leur environnement de travail. Ce qui amène ensuite à la satisfaction de carrière. 
+
+
+- **Comment se répartissent les étudiants dans les filières?**
+```{r  salary-field}
+data <- data %>%
+  mutate(Categorie = case_when(
+    Field_of_Study %in% c("Engineering", "Computer Science", "Physics") ~ "Sciences & Ingénierie",
+    Field_of_Study %in% c("Medicine") ~ "Santé",
+    Field_of_Study %in% c("Marketing", "Business", "Finance") ~ "Économie & Gestion",
+    TRUE ~ "Autres"
+  ))
+```
+
+
+```{r repartition-par-filiere}
+data%>%
+  ggplot(aes(Categorie))+
+  geom_bar(fill = "steelblue")+
+   labs(
+    x = "Catégorie de filière",
+    y = "Effectif",
+    title = "Répartition des étudiants par catégorie de filière"
+  ) +
+  theme_minimal()
+
+```
+
+
+**Interprétation:** On observe que les étudiants dans le domaine de la santé sont peu nombreux par rapport aux autres filières. 
+
+
+
+-**Comment se distribue le salaire de départ?**
+
+```{r distribution-salaire}
+data %>% 
+  ggplot(aes(x=Starting_Salary)) +
+  geom_bar() +
+  labs(
+    title="Distribution des salaires",
+    x="Salaire",
+    y="Fréquence"
+  )
+```
+
+**Interprétation:** Les salaires de départ se distribuent en majorité dans les environs de 90 000 à 
+100 000.
+
+
+-**Est-ce que les compétences relationnelles influencent-elles le salaire de départ?**
+
+```{r distribution-soft-skills}
+ggplot(data,aes(x=Soft_Skills_Score,y=Starting_Salary)) +
+  geom_point() +
+  geom_smooth() +
+  labs(
+    title="Relation entre le score en compétences relationnelles et le salaire de départ",
+    x="Score en compétences relationnelles",
+    y="Salaire de départ"
+  )
+```
+
+
+**Interprétations:** Le salaire de départ tend à augmenter selon le niveau de compétences relationnelles qu'un étudiant possède.
+
+
+### Prédiction du salaire à partir du niveau d'emploi 
+
+```{r regression-lineaire-currentjob-level}
+level_fit<-linear_reg() %>% 
+  set_engine("lm") %>% 
+  fit(Starting_Salary~Current_Job_Level,data=data)
+```
+Starting_Salary_chapeau= 48 725 + 38 566* Mid 
+Starting_Salary_chapeau= 48 725 +92 699* Senior
+
+ Les étudiants ayant un niveau Mid devraient en moyenne avoir  un salaire de
+38 566$ de plus que les étudiants ayant un niveau Entry dans leur job actuel.
+
+Les étudiants ayant un niveau Senior devraient en moyenne avoir un salaire de 92 699$ de plus que les étudiants ayant un niveau Entry dans leur job actuel.
+
+
+
+```{r r-au-carré-ajusté-avec-level}
+glance(level_fit)$adj.r.squared
+
+```
+**Interprétations:** La variable  `Current_Job_Level` explique 82.91% du salaire de départ.
+
+
+
+
+ 
+
+
+
+
+
+

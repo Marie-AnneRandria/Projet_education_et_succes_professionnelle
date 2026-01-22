@@ -1,0 +1,258 @@
+---
+title: "Projet sur "
+subtitle: "l'Éducation et la Réussite Professionnelle"
+author: "Réalisé par Marie-Anne Randrianarivony, N`GUESSAN WILFRIED ARMEL,Fatoumata Binta Diallo,Salem Asani"
+institute: "UQAC"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r load-packages, include = FALSE}
+# Ajoutez tous les packages supplémentaires dont vous avez besoin à ce chunk
+library(tidyverse)
+library(tidymodels)
+library(palmerpenguins)
+library(knitr)
+library(xaringanthemer)
+library(xaringanthemer)
+```
+
+```{r setup, include=FALSE}
+# Pour une meilleure résolution de figure
+knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 6, fig.asp = 0.618, out.width = "80%", warning = FALSE, message = FALSE)
+
+# Thème de la présentation
+style_mono_accent(
+  base_color="#1c5253",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google = google_font("Montserrat","300",
+code_font_google = google_font("Fira Mono"))
+)
+```
+
+```{r load-data, include=FALSE}
+data <-read_csv("C:/Users/Wilfried/Desktop/INTRO science  des données/Projet-Groupe-4/data/education_career_success.csv")
+
+```
+
+
+
+
+# Description du jeu de données "education_career_success" 
+
+.pull-left[
+- Étude longitudinale menée auprès de jeunes diplômés universitaires (Données Kaggle)
+
+- 400 étudiants
+
+- 19 variables 
+]
+
+.pull-right[
+- Variables regroupant:
+
+- caractéristiques personnelles (âge, genre, soft skills, networking)
+
+- parcours académique (GPA,SAT)
+
+- expérience pratique (stages, projets, certifications)
+
+-   carrière (offres d'emploi, salaire de départ, satisfaction de carrière, année de promotion)
+
+]
+.footnote[
+[*] Le salaire de départ sera notre facteur de réussite professionnelle étant donné que c'est l'indicateur le plus direct du "succès professionnel" au premier emploi.
+Les variables explicatives ont été retenues par hypothèse théorique: les GPA, le nombres de stages et de projets complétés, les compétences relationnelles et le score de réseautage.
+]
+---
+
+class: inverse, middle, center
+
+
+## Dans quelle mesure les caractéristiques éducatives et personnelles influencent-elles la réussite professionnelle ?
+
+
+---
+
+# Objectif général
+
+
+
+- Comprendre l'effet de l'éducation scolaire
+
+
+- Mesurer l'impact de l'expérience pratique (stages, certificats)
+
+
+- Examiner l'influence des compétences relationnelles
+
+
+- Mesurer les différences selon le genre ou le niveau de carrière
+
+---
+
+class: inverse, middle, center
+
+# Résultats
+
+
+## 
+---
+
+## Quel est le salaire de départ le plus élevé des étudiants selon la filière d'étude?
+
+.pull-left[
+Hypothèse: les filières techniques paient davantage que les filières littéraires.
+
+Résultat:
+L'informatique et la médecine figurent dans le top 5 des salaires de départ les plus élevés. 
+]
+.pull-right[
+```{r top-5,echo=FALSE}
+top_5 <- data %>%
+  group_by(Field_of_Study) %>%
+  summarise(Salaire_Moyen = mean(Starting_Salary, na.rm = TRUE)) %>%
+  arrange(desc(Salaire_Moyen)) %>%
+  slice_head(n = 5)   
+
+kable(top_5, format = "html")
+```
+]
+
+
+---
+## Comment se répartissent les étudiants selon leurs nombre de stages complétés? 
+.pull-left[
+Hypothèse: Un nombre élevé de stages est courant ou exceptionnel.
+
+Résultat:
+34% des étudiants ont pu complétés 3 stages au cours de leurs études. Cela montre que la majorité du groupe possède déjà une expérience pratique solide.
+]
+.pull-right[
+```{r répartition-des-étudiants,echo=FALSE}
+pourcentage_stage <-data %>% 
+  count(Internships_Completed) %>% 
+  mutate(pourcentage=round(100*n/sum(n),2)) %>% 
+  select(Internships_Completed,pourcentage)
+ 
+kable(pourcentage_stage,format="html")
+```
+]
+
+---
+
+
+## Existe-t-il une différence salariale moyenne  selon le genre?
+
+.pull-left[
+Hypothèse: il existe un écart salarial entre homme et femme (seulement pour notre cas de dataset).
+
+Résultat:
+Les femmes gagnent légèrement plus que les hommes au début de leurs carrière.
+]
+
+.pull-right[
+```{r différence-salariale,echo=FALSE}
+diff_salaire<-data %>% 
+  group_by(Gender) %>% 
+  summarise(
+    moyenne_salaire=mean(Starting_Salary,na.rm=TRUE)
+  )
+kable(diff_salaire,format="html")
+```
+
+]
+
+---
+## Comment se distribue le salaire? 
+.foot-note[
+La plupart des étudiants gagnent  entre 90 000 et 100 000$.
+]
+```{r distribution-des-salaires,echo=FALSE}
+data %>% 
+  ggplot(aes(x=Starting_Salary)) +
+  geom_bar() +
+  labs(
+    x="Salaire",
+    y="Fréquence"
+  )
+```
+
+
+---
+## Est-ce que les compétences relationnelles influencent-elles les salaires?
+.pull-left[
+Hypothèse: les entreprises valorisent les compétences relationnelles.
+
+Résultat:
+Le salaire de départ tend à augmenter selon le niveau de compétences relationnelles qu'un étudiant possède. Cela suggère que le succès professionnel ne se limite pas aux notes obtenues.
+]
+.pull-right[
+```{r dispersion-soft-skills,echo=FALSE}
+ggplot(data,aes(x=Soft_Skills_Score,y=Starting_Salary)) +
+  geom_point() +
+  geom_smooth() +
+  labs(
+    title="Relation entre le score en compétences relationnelles et le salaire de départ",
+    x="Score en compétences relationnelles",
+    y="Salaire de départ"
+  )
+```
+
+]
+
+---
+## Modéliser le salaire à partir du niveau de carrière
+.pull-left[
+Hypothèse:  Le salaire est supposé accroître avec le niveau de carrière.
+
+Résultat:
+
+$$\bar{StartingSalary}= 48 725 + 38 566* CurrentJobLevelMid$$
+
+
+$$\bar{StartingSalary}= 48 725 + 92 699* CurrentJobLevelSenior$$
+
+- R² ajusté = 82.91% 
+
+Les étudiants ayant un niveau Mid devraient en moyenne avoir  un salaire de
+38 566$ de plus que les étudiants ayant un niveau Entry dans leur job actuel.
+
+Les étudiants ayant un niveau Senior devraient en moyenne avoir un salaire de 92 699$ de plus que les étudiants ayant un niveau Entry dans leur job actuel.
+
+ Cela suggère l'idée que le succès professionnel dépend en partie du niveau occupé dans l'emploi.
+]
+.pull-right[
+```{r regression-lm,echo=FALSE}
+level_fit<-linear_reg() %>% 
+  set_engine("lm") %>% 
+  fit(Starting_Salary~Current_Job_Level,data=data)
+
+```
+
+
+```{r adj-r-squared}
+glance(level_fit)$adj.r.squared
+```
+
+]
+
+---
+class: inverse, center, middle
+# Conclusion
+
+- La réussite professionnelle dépend surtout de l'expérience pratique (Stages, Projets) et des compétences relationnelles acquises.
+
+
+- Les filières techniques et les filières médicales offrent un avantage salarial.
+
+- Les Soft Skills ont une place importante dans le progrès professionnel.
+
